@@ -3,17 +3,19 @@
 
 /* Convert a float into a string with two decimal positions. 
 
-   E.g.  21.3413 will become "32.34"
+   E.g.::  21.3413 will become "32.34", 1.2 with become "1.2"
 
-   I'm doing this to avoid use of Arduino specific code so I can test on board 
-   and native. My version is better in that I only want 2 decimal point 
-   precision and I don't want padded 0's. 
+   I'm doing this to avoid using dtostrf(), Arduino specific code, so I can 
+   test on board and native. My version is better for me. I only want 2 decimal 
+   point precision and I don't want padded 0's. 
    
    The end user will have to make sure the output buffer is big enough or the 
    number will be truncated strangely. I don't check for this.
 
    Interesting read on how on floating point operations:
-   
+
+   https://www.learncpp.com/cpp-tutorial/floating-point-numbers/
+
    https://www.exploringbinary.com/
         why-0-point-1-does-not-exist-in-floating-point/
 
