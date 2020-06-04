@@ -1,10 +1,10 @@
-/* Tests run on the desktop (without access to arduino libraries).
+/* Tests run on the arduino ethernet board.
 
 Oisin Mulvihill
 2020-06-04
 
 */
-#include <iostream>
+#include <Arduino.h>
 #include <unity.h>
 #include "number.h"
 
@@ -40,22 +40,25 @@ void test_decimalToString(void) {
     TEST_ASSERT_EQUAL_STRING(
         "122.1", decimalToString(output, 6, 122.19)
     );
-    // another bad output examples:
+    // other bad output examples:
     TEST_ASSERT_EQUAL_STRING(
         "1222.", decimalToString(output, 6, 1222.19)
     );
     TEST_ASSERT_EQUAL_STRING(
         "12222", decimalToString(output, 6, 12222.19)
     );
-    TEST_ASSERT_EQUAL_STRING(
-        "12222", decimalToString(output, 6, 122222.19)
-    );
 }
 
-int main(int argc, char **argv) {
-    UNITY_BEGIN();
-    RUN_TEST(test_decimalToString);
-    UNITY_END();
+void test_generateReport(void) {
 
-    return 0;
+}
+
+void setup() {
+    UNITY_BEGIN();
+}
+
+void loop() {
+    RUN_TEST(test_decimalToString);
+    RUN_TEST(test_generateReport);
+    UNITY_END();
 }
