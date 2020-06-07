@@ -1,12 +1,23 @@
 #ifndef _LOGIC_H  
 #define _LOGIC_H 
 
-void generateReport(
+// Max size 7 including null terminator: XXX.YY\0
+#define FIELD_MAX_LENGTH 7
+#define MAX_REQUEST_LINES 6
+#define MAX_REQUEST_LINE_SIZE 128
+
+void generateHTTPPost(
+  char request[MAX_REQUEST_LINES][MAX_REQUEST_LINE_SIZE],
+  char *server_host, 
+  char *report
+);
+
+char * generateReport(
+    char *report, 
+    int report_size,
     float temperature, 
     float humidity, 
-    float dew_point,
-    char *report, 
-    int report_size
+    float dew_point
 );
 
 #endif
