@@ -1,6 +1,5 @@
 /*
-Collection of functions doing the business logic. I'm going to unittest these
-as they don't need Arduino specific hardware.
+Collection of functions doing the business logic.
 
 Oisin Mulvihill
 2020-05-30
@@ -10,7 +9,37 @@ Oisin Mulvihill
 #include <math.h>
 #include <string.h>
 #include "number.h"
+#include "logic.h"
 
+
+/* Using the given handler construct and send the HTTP Headers and Body.
+*/
+void generateHTTPPost(
+  char request[MAX_REQUEST_LINES][MAX_REQUEST_LINE_SIZE], 
+  char *server_host, 
+  char *report
+) {
+    char line[MAX_REQUEST_LINE_SIZE] = {0};
+
+    // Send the data as a HTTP POST request:
+    //
+    // Request line:
+    strncpy(request[0], "POST /log/sample/indoor HTTP/1.0", 33);
+    
+    // HTTP Header fields
+    snprintf(line, sizeof(line), "Host: %s", server_host);
+    strncpy(request[1], line, sizeof(line));
+    memset(line, 0, sizeof(line));
+    snprintf(line, sizeof(line), "Content-length: %lu", strlen(report));
+    strncpy(request[2], line, sizeof(line));
+    strncpy(request[3], "Content-Type: application/x-www-form-urlencoded", 48);
+
+    // Empty line to denote end of headers.
+    strncpy(request[4], "\n", 1);
+
+    // HTTP Body
+    strncpy(request[5], report, strlen(report));
+}
 
 /*
     Given the temperature and humidity values generate the report string which
@@ -39,44 +68,31 @@ Oisin Mulvihill
     report buffer size, so we can safely create the report string.      
 
 */
-void generateReport(
+char * generateReport(
+    char *report, 
+    int report_size,
     float temperature, 
     float humidity, 
-    float dew_point,
-    char *report, 
-    int report_size
+    float dew_point
 ) {
-  // Size 5: XX.YY
-  char temperature_str[5];
-  char humidity_str[5];
-  char dew_point_str[5];
-
-  // if the number is X.YY I need to reduce the length by one to avoid
-  // the space e.g. avoid 't= 8.4' getting 't=8.4'
-  int length = 3;
-
-  if(isnan(temperature) || isnan(humidity))
-  {
+  char temperature_str[FIELD_MAX_LENGTH] = {0};
+  char humidity_str[FIELD_MAX_LENGTH] = {0};
+  char dew_point_str[FIELD_MAX_LENGTH] = {0};
+  
+  if(isnan(temperature) || isnan(humidity)) {
     snprintf(report, report_size, "No temp data :(");
   }
   else {
     // Clear out previous displayed values:
     memset(report, 0, report_size);
 
-    // Convert floats to a string XX.YY 2 decimal fixed format.
-    memset(temperature_str, 0, sizeof(temperature_str));
-    // dtostrf doesn't pad with 0 so I need to reduce 
-    length = (temperature < 10) ? 4 : 3;
-    decimalToString(temperature_str, length, temperature);
-
-    memset(humidity_str, 0, sizeof(humidity_str));
-    length = (humidity < 10) ? 4 : 3;
-    decimalToString(humidity_str, length, humidity);
-
-    memset(dew_point_str, 0, sizeof(dew_point_str));
-    length = (dew_point < 10) ? 4 : 3;
-    decimalToString(dew_point_str, length, dew_point);
-
+    // Convert float values into a string ready for the report construction. I
+    // am not checking the size of the field values. I'm assuming temperature,
+    // humidity and dew point will fit into the space I've allocated. The 
+    // convert function will safely truncate to fit, but the values store could 
+    // be wrong if they are too big. I'm not worried about this for this 
+    // application. Temp & Dew point won't realistically be bigger then 2 
+    // digits and humidity is a percentage.
     snprintf(
       report,
       report_size,
@@ -86,4 +102,6 @@ void generateReport(
       dew_point_str
     );
   }
+
+  return report;
 }

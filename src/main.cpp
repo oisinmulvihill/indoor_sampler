@@ -59,20 +59,21 @@ void setup() {
   }
 }
 
-
 void indoor_sample() {
-  char line[128];
   char report[32];
+  char request[MAX_REQUEST_LINES][MAX_REQUEST_LINE_SIZE] = {0};
   float temperature = dht.getTemperature();
   float humidity = dht.getHumidity();
 
   generateReport(
+    report,
+    sizeof(report),
     temperature,
     humidity,
     dht.computeDewPoint(temperature, humidity),
-    report,
-    sizeof(report)
   );
+
+  generateHTTPPost(request, server_host, report);
 
   Serial.print("Sending report '");
   Serial.print(report);
@@ -81,29 +82,11 @@ void indoor_sample() {
   Serial.print(line);
   
   if (client.connect(server_host, server_port)) {
-    Serial.print("Connected OK. ");
-    
-    // Send the data as a HTTP POST request:
-    //
-    // Request line:
-    client.println("POST /log/sample/indoor HTTP/1.0");
-    
-    // HTTP Header fields
-    memset(line, 0, sizeof(line));
-    snprintf(line, sizeof(line), "Host: %s", server_host);
-    client.println(line);
-    memset(line, 0, sizeof(line));
-    snprintf(line, sizeof(line), "Content-length: %d", strlen(report));
-    client.println(line);
-    client.println("Content-Type: application/x-www-form-urlencoded");
-    // Empty line to denote end of headers.
-    client.println();
-
-    // HTTP Body
-    client.print(report);
-
-    Serial.print("Report sent.");
-    Serial.println();
+    // Success, connected OK, send HTTP POST request lines:
+    for(int line=0; i++; i < MAX_REQUEST_LINES) {
+      Serial.println(report[i]);
+      client.println(report[i]);
+    }
   } else {
     // This will be tried again later, so not a huge deal if we don't connect.
     Serial.println("Connection failed!");
