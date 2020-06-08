@@ -4,7 +4,6 @@ Oisin Mulvihill
 2020-06-04
 
 */
-#include <iostream>
 #include <unity.h>
 #include "number.h"
 #include "logic.h"
