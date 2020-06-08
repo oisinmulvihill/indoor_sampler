@@ -69,39 +69,38 @@ void generateHTTPPost(
 
 */
 char * generateReport(
-    char *report, 
-    int report_size,
-    float temperature, 
-    float humidity, 
-    float dew_point
+  char *report, 
+  int report_size,
+  float temperature, 
+  float humidity, 
+  float dew_point
 ) {
   char temperature_str[FIELD_MAX_LENGTH] = {0};
   char humidity_str[FIELD_MAX_LENGTH] = {0};
   char dew_point_str[FIELD_MAX_LENGTH] = {0};
   
-  if(isnan(temperature) || isnan(humidity)) {
-    snprintf(report, report_size, "No temp data :(");
-  }
-  else {
-    // Clear out previous displayed values:
-    memset(report, 0, report_size);
+  // Clear out previous displayed values:
+  memset(report, 0, report_size);
 
-    // Convert float values into a string ready for the report construction. I
-    // am not checking the size of the field values. I'm assuming temperature,
-    // humidity and dew point will fit into the space I've allocated. The 
-    // convert function will safely truncate to fit, but the values store could 
-    // be wrong if they are too big. I'm not worried about this for this 
-    // application. Temp & Dew point won't realistically be bigger then 2 
-    // digits and humidity is a percentage.
-    snprintf(
-      report,
-      report_size,
-      "t=%s&h=%s&d=%s",
-      temperature_str,
-      humidity_str,
-      dew_point_str
-    );
-  }
+  // Convert float values into a string ready for the report construction. I
+  // am not checking the size of the field values. I'm assuming temperature,
+  // humidity and dew point will fit into the space I've allocated. The 
+  // convert function will safely truncate to fit, but the values store could 
+  // be wrong if they are too big. I'm not worried about this for this 
+  // application. Temp & Dew point won't realistically be bigger then 2 
+  // digits and humidity is a percentage.
+  decimalToString(temperature_str, FIELD_MAX_LENGTH, temperature);
+  decimalToString(humidity_str, FIELD_MAX_LENGTH, humidity);
+  decimalToString(dew_point_str, FIELD_MAX_LENGTH, dew_point);
+
+  snprintf(
+    report,
+    report_size,
+    "t=%s&h=%s&d=%s",
+    temperature_str,
+    humidity_str,
+    dew_point_str
+  );
 
   return report;
 }
