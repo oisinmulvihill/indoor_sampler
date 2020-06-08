@@ -11,7 +11,7 @@ Oisin Mulvihill
 
 
 void test_decimalToString(void) {
-    char output[6] = {0};
+    char output[7] = {0};
     
     TEST_ASSERT_EQUAL_STRING(
         "34.16", decimalToString(output, 6, 34.1623)
@@ -26,7 +26,7 @@ void test_decimalToString(void) {
     );
     
     TEST_ASSERT_EQUAL_STRING(
-        "4.1", decimalToString(output, 6, 4.1)
+        "4.10", decimalToString(output, 6, 4.1)
     );
     
     TEST_ASSERT_EQUAL_STRING(
@@ -34,13 +34,41 @@ void test_decimalToString(void) {
     );
     
     TEST_ASSERT_EQUAL_STRING(
-        "1.1", decimalToString(output, 6, 1.1)
+        "0.00", decimalToString(output, 6, 0)
     );
     
     TEST_ASSERT_EQUAL_STRING(
-        "12.1", decimalToString(output, 6, 12.1)
+        "1.10", decimalToString(output, 6, 1.1)
+    );
+
+    TEST_ASSERT_EQUAL_STRING(
+        "2.20", decimalToString(output, 6, 2.2)
     );
     
+    TEST_ASSERT_EQUAL_STRING(
+        "12.10", decimalToString(output, 6, 12.1)
+    );
+
+    TEST_ASSERT_EQUAL_STRING(
+        "-1.22", decimalToString(output, 6, -1.22)
+    );
+
+    TEST_ASSERT_EQUAL_STRING(
+        "-1.10", decimalToString(output, 6, -1.1)
+    );
+
+    TEST_ASSERT_EQUAL_STRING(
+        "-99.10", decimalToString(output, 7, -99.1)
+    );
+
+    TEST_ASSERT_EQUAL_STRING(
+        "-99.11", decimalToString(output, 7, -99.11)
+    );
+
+    TEST_ASSERT_EQUAL_STRING(
+        "-99.12", decimalToString(output, 7, -99.12)
+    );
+
     // The buffer is not big enough so you will see example of it breaking. You
     // need to make sure output is big enough for maximum number of digits + 
     // '.' + \0 character. The fraction part is always two digits.
@@ -78,9 +106,8 @@ void test_generateReport(void) {
         100.0,
         0.0
     );
-    TEST_ASSERT_EQUAL_STRING("t=99.99&h=100.0&d=0.0", report);
+    TEST_ASSERT_EQUAL_STRING("t=99.99&h=100.00&d=0.00", report);
 
-    // Note: the trailing 0 will be dropped in conversion
     generateReport(
         report, 
         sizeof(report), 
@@ -88,16 +115,7 @@ void test_generateReport(void) {
         2.20,
         3.30
     );
-    TEST_ASSERT_EQUAL_STRING("t=1.1&h=2.3&d=3.3", report);
-
-    generateReport(
-        report, 
-        sizeof(report), 
-        1.1, 
-        2.2,
-        3.3
-    );
-    TEST_ASSERT_EQUAL_STRING("t=1.1&h=2.2&d=3.3", report);
+    TEST_ASSERT_EQUAL_STRING("t=1.10&h=2.20&d=3.30", report);
 }
 
 void test_generateHTTPPOST(void) {
