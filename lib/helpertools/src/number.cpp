@@ -1,5 +1,9 @@
 #include <stdio.h>
+#ifdef ARDUINO
+#include <arduino.h>
+#else
 #include <math.h>
+#endif
 
 
 /* Convert a float into a string with two decimal precision. 
