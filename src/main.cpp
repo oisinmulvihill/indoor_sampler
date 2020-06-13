@@ -60,17 +60,19 @@ void setup() {
 }
 
 void indoor_sample() {
-  char report[32];
+  char line[MAX_REQUEST_LINE_SIZE] = {0};
+  char report[MAX_REQUEST_LINE_SIZE] = {0};
   char request[MAX_REQUEST_LINES][MAX_REQUEST_LINE_SIZE] = {0};
   float temperature = dht.getTemperature();
   float humidity = dht.getHumidity();
+  float dewPoint = dht.computeDewPoint(temperature, humidity);
 
   generateReport(
     report,
     sizeof(report),
     temperature,
     humidity,
-    dht.computeDewPoint(temperature, humidity),
+    dewPoint
   );
 
   generateHTTPPost(request, server_host, report);
@@ -83,9 +85,9 @@ void indoor_sample() {
   
   if (client.connect(server_host, server_port)) {
     // Success, connected OK, send HTTP POST request lines:
-    for(int line=0; i++; i < MAX_REQUEST_LINES) {
-      Serial.println(report[i]);
-      client.println(report[i]);
+    for(int index=0; index < MAX_REQUEST_LINES; index++) {
+      Serial.println(report[index]);
+      client.println(report[index]);
     }
   } else {
     // This will be tried again later, so not a huge deal if we don't connect.

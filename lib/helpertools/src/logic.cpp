@@ -16,8 +16,8 @@ Oisin Mulvihill
 */
 void generateHTTPPost(
   char request[MAX_REQUEST_LINES][MAX_REQUEST_LINE_SIZE], 
-  char *server_host, 
-  char *report
+  const char *server_host, 
+  const char *report
 ) {
     char line[MAX_REQUEST_LINE_SIZE] = {0};
 
@@ -30,7 +30,8 @@ void generateHTTPPost(
     snprintf(line, sizeof(line), "Host: %s", server_host);
     strncpy(request[1], line, sizeof(line));
     memset(line, 0, sizeof(line));
-    snprintf(line, sizeof(line), "Content-length: %lu", strlen(report));
+
+    snprintf(line, sizeof(line), "Content-length: %d", (int) strlen(report));
     strncpy(request[2], line, sizeof(line));
     strncpy(request[3], "Content-Type: application/x-www-form-urlencoded", 48);
 
