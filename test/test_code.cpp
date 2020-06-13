@@ -1,10 +1,12 @@
-/* Tests run on the arduino ethernet board.
+/* Tests run on the desktop (without access to arduino libraries).
 
 Oisin Mulvihill
 2020-06-04
 
 */
+#ifdef ARDUINO
 #include <Arduino.h>
+#endif
 #include <unity.h>
 #include "number.h"
 #include "logic.h"
@@ -121,7 +123,11 @@ void test_generateReport(void) {
 void test_generateHTTPPOST(void) {
     char request[MAX_REQUEST_LINES][MAX_REQUEST_LINE_SIZE] = {0};
 
-    generateHTTPPost(request, "tarsis", "t=22.87&h=33.34&d=12.4");
+    generateHTTPPost(
+        request, 
+        "tarsis", 
+        "t=22.87&h=33.34&d=12.4"
+    );
 
     TEST_ASSERT_EQUAL_STRING(
         "POST /log/sample/indoor HTTP/1.0", 
@@ -149,6 +155,9 @@ void test_generateHTTPPOST(void) {
     );
 }
 
+
+#ifdef ARDUINO
+// Arduino test run
 void setup() {
     UNITY_BEGIN();
 }
@@ -159,3 +168,19 @@ void loop() {
     RUN_TEST(test_generateHTTPPOST);
     UNITY_END();
 }
+
+#else
+// Desktop test run
+int main(int argc, char **argv) {
+    UNITY_BEGIN();
+    RUN_TEST(test_decimalToString);
+    RUN_TEST(test_generateReport);
+    RUN_TEST(test_generateHTTPPOST);
+    UNITY_END();
+
+    return 0;
+}
+
+#endif
+
+

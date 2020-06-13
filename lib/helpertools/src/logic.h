@@ -8,8 +8,8 @@
 
 void generateHTTPPost(
   char request[MAX_REQUEST_LINES][MAX_REQUEST_LINE_SIZE],
-  char *server_host, 
-  char *report
+  const char *server_host, 
+  const char *report
 );
 
 char * generateReport(
