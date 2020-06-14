@@ -126,7 +126,7 @@ void test_generateHTTPPOST(void) {
     generateHTTPPost(
         request, 
         "tarsis", 
-        "t=22.87&h=33.34&d=12.4"
+        "t=22.87&h=33.34&d=12.41"
     );
 
     TEST_ASSERT_EQUAL_STRING(
@@ -138,7 +138,7 @@ void test_generateHTTPPOST(void) {
         request[1]
     );
     TEST_ASSERT_EQUAL_STRING(
-        "Content-length: 22", 
+        "Content-length: 23", 
         request[2]
     );
     TEST_ASSERT_EQUAL_STRING(
@@ -146,11 +146,11 @@ void test_generateHTTPPOST(void) {
         request[3]
     );
     TEST_ASSERT_EQUAL_STRING(
-        "\n", 
+        "", 
         request[4]
     );
     TEST_ASSERT_EQUAL_STRING(
-        "t=22.87&h=33.34&d=12.4", 
+        "t=22.87&h=33.34&d=12.41", 
         request[5]
     );
 }

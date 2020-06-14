@@ -4,7 +4,7 @@
 // Max size 7 including null terminator: XXX.YY\0
 #define FIELD_MAX_LENGTH 7
 #define MAX_REQUEST_LINES 6
-#define MAX_REQUEST_LINE_SIZE 128
+#define MAX_REQUEST_LINE_SIZE 64
 
 void generateHTTPPost(
   char request[MAX_REQUEST_LINES][MAX_REQUEST_LINE_SIZE],
