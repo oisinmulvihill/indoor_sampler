@@ -12,7 +12,7 @@ Oisin Mulvihill
 
 */
 #include <SPI.h>
-#include <Ethernet.h>
+#include "Ethernet.h"
 #include "DHTesp.h"
 #include "logic.h"
 
@@ -34,28 +34,32 @@ char server_host[] = HOSTNAME;
 byte mac[] = {0x90, 0xA2, 0xDA, 0x00, 0x61, 0x58};
 
 void setup() {
-  // Set up temp/humidity sensor
-  dht.setup(DHT_PIN, DHTesp::DHT11);
-
   // Open serial communications and wait for port to open:
   Serial.begin(9600);
   while (!Serial) {
     ; // wait for serial port to connect. Needed for native USB port only
   }
 
+  // Set up temp/humidity sensor
+  dht.setup(DHT_PIN, DHTesp::DHT11);
+
   // start the Ethernet connection:
-  Serial.println("Initialize Ethernet with DHCP:");
+  Serial.println("Initialize Ethernet with DHCP.");
   if (Ethernet.begin(mac) == 0) {
     Serial.println("Failed to configure Ethernet using DHCP");
+    // Check for Ethernet hardware present
     if (Ethernet.hardwareStatus() == EthernetNoHardware) {
       Serial.println("Ethernet shield was not found.  Sorry, can't run without hardware. :(");
-    } else if (Ethernet.linkStatus() == LinkOFF) {
+      while (true) {
+        delay(1); // do nothing, no point running without Ethernet hardware
+      }
+    }
+    if (Ethernet.linkStatus() == LinkOFF) {
       Serial.println("Ethernet cable is not connected.");
-    }
-    // no point in carrying on, so do nothing forevermore:
-    while (true) {
-      delay(1);
-    }
+    }  
+  } else {
+    Serial.println("DHCP assigned IP:");
+    Serial.println(Ethernet.localIP());
   }
 }
 
@@ -80,14 +84,14 @@ void indoor_sample() {
   Serial.print("Sending report '");
   Serial.print(report);
   memset(line, 0, sizeof(line));
-  snprintf(line, sizeof(line), "' to %s:%d... ", server_host, server_port);
-  Serial.print(line);
+  snprintf(line, sizeof(line), "' to %s:%d.", server_host, server_port);
+  Serial.println(line);
   
   if (client.connect(server_host, server_port)) {
     // Success, connected OK, send HTTP POST request lines:
     for(int index=0; index < MAX_REQUEST_LINES; index++) {
-      Serial.println(report[index]);
-      client.println(report[index]);
+      // Serial.println(request[index]);
+      client.println(request[index]);
     }
   } else {
     // This will be tried again later, so not a huge deal if we don't connect.
@@ -101,18 +105,22 @@ void loop() {
   switch (Ethernet.maintain()) {
     case 1:
       //renewed fail
+      Serial.println("Renew failed!");
       break;
 
     case 2:
       //renewed success
+      Serial.println("Renew success");
       break;
 
     case 3:
       //rebind fail
+      Serial.println("Rebind fail!");
       break;
 
     case 4:
       //rebind success
+      Serial.println("Rebind success");
       break;
 
     default:

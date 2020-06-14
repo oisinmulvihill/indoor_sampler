@@ -28,15 +28,15 @@ void generateHTTPPost(
     
     // HTTP Header fields
     snprintf(line, sizeof(line), "Host: %s", server_host);
-    strncpy(request[1], line, sizeof(line));
+    strncpy(request[1], line, strlen(line));
     memset(line, 0, sizeof(line));
 
     snprintf(line, sizeof(line), "Content-length: %d", (int) strlen(report));
-    strncpy(request[2], line, sizeof(line));
+    strncpy(request[2], line, strlen(line));
     strncpy(request[3], "Content-Type: application/x-www-form-urlencoded", 48);
 
     // Empty line to denote end of headers.
-    strncpy(request[4], "\n", 1);
+    // request[4] is an empty string line
 
     // HTTP Body
     strncpy(request[5], report, strlen(report));
