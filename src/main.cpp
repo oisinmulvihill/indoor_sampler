@@ -15,8 +15,9 @@ Oisin Mulvihill
 #include "Zanshin_BME680.h"
 
 // 5min = 1000 * 60 * 5
-// #define DELAY 300000
-#define DELAY 5000
+#define DELAY 300000
+// 5 seconds
+// #define DELAY 5000
 #define DHT_PIN 2
 #define HTTP_DEBUG
 #define PORT 8080
