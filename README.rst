@@ -1,7 +1,8 @@
 Indoor Sampler
 ==============
 
-Sample the temperature logging readings to central REST API service.
+Sample the temperature, humidity, pressure and gas values logging readings to 
+central REST API service.
 
 .. contents::
 

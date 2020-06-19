@@ -3,7 +3,7 @@
 
 #define MAX_REQUEST_LINES 6
 // Max size of the generated report string.
-// char report[] = "type=bme680&t=12345&h=123456&p=123456789&g=123456";
+// char report[] = "type=bme680&t=-1234&h=123456&p=1234567&g=1234567";
 #define MAX_REPORT_SIZE 50
 #define HTTP_REQUEST_LINE "POST /log/sample/indoor HTTP/1.0"
 #define HTTP_CONTENT_TYPE "Content-Type: application/x-www-form-urlencoded"
@@ -19,6 +19,12 @@ void contentLengthHeader(
   char *request,
   int request_size,
   char *report
+);
+
+void sourceAddressHeader(
+  char *request,
+  int request_size,
+  unsigned char macAddress[]
 );
 
 char * generateReport(

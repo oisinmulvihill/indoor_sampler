@@ -16,7 +16,6 @@ const char *requestLine = "POST /log/sample/indoor HTTP/1.0";
 const char *contentTypeLine = 
   "Content-Type: application/x-www-form-urlencoded";
 
-
 void hostHeader(
   char *request,
   int request_size,
@@ -33,8 +32,25 @@ void contentLengthHeader(
   char *report
 ) {
   memset((void *) request, 0, request_size);
+  snprintf(request, request_size, "Content-Length: %d", (int) strlen(report));
+}
+
+void sourceAddressHeader(
+  char *request,
+  int request_size,
+  unsigned char macAddress[]
+){
+  memset((void *) request, 0, request_size);
   snprintf(
-    request, request_size, "Content-Length: %d", (int) strlen(report)
+    request, 
+    request_size, 
+    "X-MAC: %02X:%02X:%02X:%02X:%02X:%02X", 
+    macAddress[0],
+    macAddress[1],
+    macAddress[2],
+    macAddress[3],
+    macAddress[4],
+    macAddress[5]
   );
 }
 
@@ -84,8 +100,8 @@ char * generateReport(
   snprintf(
     report,
     report_size,
-    "type=bme680&t=%05lu&h=%06lu&p=%07lu&g=%08lu",
-    (unsigned long) temperature,
+    "type=bme680&t=%05ld&h=%06lu&p=%06lu&g=%08lu",
+    (signed long) temperature,
     (unsigned long) humidity,
     (unsigned long) pressure,
     (unsigned long) gas

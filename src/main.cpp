@@ -83,12 +83,6 @@ void indoor_sample() {
 
   BME680.getSensorData(temperature, humidity, pressure, gas);
 
-  if (temperature > 8000) {
-    Serial.print("Bad temperature reading: ");
-    Serial.print(temperature);
-    return;
-  }
-
   generateReport(report, sizeof(report), temperature, humidity, pressure, gas);
   Serial.print("Sending report '");
   Serial.print(report);
@@ -104,6 +98,8 @@ void indoor_sample() {
     client.println(buffer);
     client.println(HTTP_CONTENT_TYPE);
     contentLengthHeader(buffer, sizeof(buffer), report);
+    client.println(buffer);
+    sourceAddressHeader(buffer, sizeof(buffer), (unsigned char *) mac);
     client.println(buffer);
     // End of headers
     client.println();
