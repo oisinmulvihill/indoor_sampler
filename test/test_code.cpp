@@ -89,70 +89,57 @@ void test_decimalToString(void) {
 }
 
 void test_generateReport(void) {
-    // Maximum string size I expect "t=XXX.YY&h=XXX.YY&d=XXX.YY\0" (27)
-    char report[27] = {0};
+    // Maximum string size I expect 
+    char report[] = "type=bme680&t=12345&h=123456&p=123456789&g=123456";
 
     generateReport(
         report, 
         sizeof(report), 
-        21.322, 
-        34.871,
-        17.12
+        1, 
+        2,
+        3,
+        4
     );
-    TEST_ASSERT_EQUAL_STRING("t=21.32&h=34.87&d=17.12", report);
+    TEST_ASSERT_EQUAL_STRING("type=bme680&t=1&h=2&p=3&g=4", report);
 
     generateReport(
         report, 
         sizeof(report), 
-        99.99, 
-        100.0,
-        0.0
+        2856, 
+        41089,
+        100915,
+        108926
     );
-    TEST_ASSERT_EQUAL_STRING("t=99.99&h=100.00&d=0.00", report);
-
-    generateReport(
-        report, 
-        sizeof(report), 
-        1.10, 
-        2.20,
-        3.30
+    TEST_ASSERT_EQUAL_STRING(
+        "type=bme680&t=2856&h=41089&p=100915&g=108926",
+        report
     );
-    TEST_ASSERT_EQUAL_STRING("t=1.10&h=2.20&d=3.30", report);
 }
 
-void test_generateHTTPPOST(void) {
-    char request[MAX_REQUEST_LINES][MAX_REQUEST_LINE_SIZE] = {0};
+void test_hostHeader(void) {
+    char request[MAX_REPORT_SIZE] = {0};
 
-    generateHTTPPost(
-        request, 
-        "tarsis", 
-        "t=22.87&h=33.34&d=12.41"
-    );
+    hostHeader(request, MAX_REPORT_SIZE, (char *) "tarsis", 8080);
+    TEST_ASSERT_EQUAL_STRING("Host: tarsis:8080", request);
 
-    TEST_ASSERT_EQUAL_STRING(
-        "POST /log/sample/indoor HTTP/1.0", 
-        request[0]
-    );
-    TEST_ASSERT_EQUAL_STRING(
-        "Host: tarsis", 
-        request[1]
-    );
-    TEST_ASSERT_EQUAL_STRING(
-        "Content-length: 23", 
-        request[2]
-    );
-    TEST_ASSERT_EQUAL_STRING(
-        "Content-Type: application/x-www-form-urlencoded", 
-        request[3]
-    );
-    TEST_ASSERT_EQUAL_STRING(
-        "", 
-        request[4]
-    );
-    TEST_ASSERT_EQUAL_STRING(
-        "t=22.87&h=33.34&d=12.41", 
-        request[5]
-    );
+    hostHeader(request, MAX_REPORT_SIZE, (char *) "192.168.0.2", 8080);
+    TEST_ASSERT_EQUAL_STRING("Host: 192.168.0.2:8080", request);
+
+    hostHeader(request, MAX_REPORT_SIZE, (char *) "www.google.com", 80);
+    TEST_ASSERT_EQUAL_STRING("Host: www.google.com:80", request);
+}
+
+void test_contentLengthHeader(void) {
+    char request[MAX_REPORT_SIZE] = {0};
+
+    contentLengthHeader(request, MAX_REPORT_SIZE, (char *) "1");
+    TEST_ASSERT_EQUAL_STRING("Content-Length: 1", request);
+
+    contentLengthHeader(request, MAX_REPORT_SIZE, (char *) "12");
+    TEST_ASSERT_EQUAL_STRING("Content-Length: 2", request);
+
+    contentLengthHeader(request, MAX_REPORT_SIZE, (char *) "123");
+    TEST_ASSERT_EQUAL_STRING("Content-Length: 3", request);
 }
 
 
@@ -165,7 +152,8 @@ void setup() {
 void loop() {
     RUN_TEST(test_decimalToString);
     RUN_TEST(test_generateReport);
-    RUN_TEST(test_generateHTTPPOST);
+    RUN_TEST(test_hostHeader);
+    RUN_TEST(test_contentLengthHeader);
     UNITY_END();
 }
 
@@ -175,7 +163,8 @@ int main(int argc, char **argv) {
     UNITY_BEGIN();
     RUN_TEST(test_decimalToString);
     RUN_TEST(test_generateReport);
-    RUN_TEST(test_generateHTTPPOST);
+    RUN_TEST(test_hostHeader);
+    RUN_TEST(test_contentLengthHeader);
     UNITY_END();
 
     return 0;

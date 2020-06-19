@@ -11,96 +11,84 @@ Oisin Mulvihill
 #include "number.h"
 #include "logic.h"
 
+const char *requestLine = "POST /log/sample/indoor HTTP/1.0";
 
-/* Using the given handler construct and send the HTTP Headers and Body.
-*/
-void generateHTTPPost(
-  char request[MAX_REQUEST_LINES][MAX_REQUEST_LINE_SIZE], 
-  const char *server_host, 
-  const char *report
+const char *contentTypeLine = 
+  "Content-Type: application/x-www-form-urlencoded";
+
+
+void hostHeader(
+  char *request,
+  int request_size,
+  char *server_host, 
+  int server_port
 ) {
-    char line[MAX_REQUEST_LINE_SIZE] = {0};
+  memset((void *) request, 0, request_size);
+  snprintf(request, request_size, "Host: %s:%d", server_host, server_port);
+}
 
-    // Send the data as a HTTP POST request:
-    //
-    // Request line:
-    strncpy(request[0], "POST /log/sample/indoor HTTP/1.0", 33);
-    
-    // HTTP Header fields
-    snprintf(line, sizeof(line), "Host: %s", server_host);
-    strncpy(request[1], line, strlen(line));
-    memset(line, 0, sizeof(line));
-
-    snprintf(line, sizeof(line), "Content-length: %d", (int) strlen(report));
-    strncpy(request[2], line, strlen(line));
-    strncpy(request[3], "Content-Type: application/x-www-form-urlencoded", 48);
-
-    // Empty line to denote end of headers.
-    // request[4] is an empty string line
-
-    // HTTP Body
-    strncpy(request[5], report, strlen(report));
+void contentLengthHeader(
+  char *request,
+  int request_size,
+  char *report
+) {
+  memset((void *) request, 0, request_size);
+  snprintf(
+    request, request_size, "Content-Length: %d", (int) strlen(report)
+  );
 }
 
 /*
-    Given the temperature and humidity values generate the report string which
-    includes the dew point.
-    
-    For example:
+  Given the temperature, humidity, pressure and gas values generate the 
+  report string.
 
-    temperature=26.23
-    humidity=39.01
-    dew_point=11.22
+  The readings are given as integers instead of floating point numbers
+  
+  For example:
 
-    The resultant report will be:
+  Temperature: 
+    -XXYY e.g. -2856 = -28.56C [range -40 <-> +85 C]
 
-    't=26.2&h=39.0&d=11.2'
+  Humidity: 
+    XXXYYY e.g. 41089 = 41.089% [range 0 <-> 100%]
 
-    If temperature or humidity are not a number then report will be:
+  Pressure: 
+    XXXXYY e.g. 100915 = 1009.15hPa [range 300hPa <-> 1100hPa]
 
-    'No temp data :('
+  Gas: 
+    XXXXXX e.g. 108926 [mΩ resistance, I'm not sure of range]
 
-    The report data is in a format capable with that used to POST to a HTTP
-    endpoint. It will be easy converted and used as key-value pairs on the 
-    server side. It will be POSTed as content type 
-    application/x-www-form-urlencoded.
+  The resultant report will be:
 
-    I use snprintf to generate the report string so you need to pass in the
-    report buffer size, so we can safely create the report string.      
+  'type=bme680&t=28562&h=41089&p=100915&g=108926'
 
+  The report data is in a format capable with that used to POST to a HTTP
+  endpoint. It will be easy converted and used as key-value pairs on the 
+  server side. It will be POSTed as content type 
+  application/x-www-form-urlencoded.
+
+  I use snprintf to generate the report string so you need to pass in the
+  report buffer size, so we can safely create the report string.      
 */
 char * generateReport(
   char *report, 
   int report_size,
-  float temperature, 
-  float humidity, 
-  float dew_point
+  int32_t temperature, 
+  int32_t humidity, 
+  int32_t pressure,
+  int32_t gas
 ) {
-  char temperature_str[FIELD_MAX_LENGTH] = {0};
-  char humidity_str[FIELD_MAX_LENGTH] = {0};
-  char dew_point_str[FIELD_MAX_LENGTH] = {0};
-  
   // Clear out previous displayed values:
   memset(report, 0, report_size);
-
-  // Convert float values into a string ready for the report construction. I
-  // am not checking the size of the field values. I'm assuming temperature,
-  // humidity and dew point will fit into the space I've allocated. The 
-  // convert function will safely truncate to fit, but the values store could 
-  // be wrong if they are too big. I'm not worried about this for this 
-  // application. Temp & Dew point won't realistically be bigger then 2 
-  // digits and humidity is a percentage.
-  decimalToString(temperature_str, FIELD_MAX_LENGTH, temperature);
-  decimalToString(humidity_str, FIELD_MAX_LENGTH, humidity);
-  decimalToString(dew_point_str, FIELD_MAX_LENGTH, dew_point);
 
   snprintf(
     report,
     report_size,
-    "t=%s&h=%s&d=%s",
-    temperature_str,
-    humidity_str,
-    dew_point_str
+    "type=bme680&t=%05lu&h=%06lu&p=%07lu&g=%08lu",
+    (unsigned long) temperature,
+    (unsigned long) humidity,
+    (unsigned long) pressure,
+    (unsigned long) gas
   );
 
   return report;

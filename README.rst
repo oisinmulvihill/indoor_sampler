@@ -12,22 +12,25 @@ I'm reusing an old Arduino POE Ethernet board to capture temperature and other
 data. The sampler will perform a HTTP POST request to a central server on the 
 LAN to handle the reading. The board will be powered without the need for 
 battery or external power supply. My LAN has a POE switch I can use to support 
-this. I'm working with a DHT11 sensor but I will move to BME680 when I get a 
-chance.
+this. I'm working with the sensors provided by the `BME680 <https://shop.pimoroni.com/products/bme680-breakout>`_ 
+breakout board from `Pimoroni <https://shop.pimoroni.com/products/bme680-breakout>`_.
 
-I'm using https://platformio.org/ as the tool/framework to allow me to build 
+I'm using `PlatformIO <https://platformio.org/>`_ as the tool/framework to allow me to build 
 and test my core logic on the arduino or desktop. Its taken a while to get up
 to speed on Platformio but I believe it was worth the effort. They have put a 
 lot of thought into how to structure a project. They can also support TDD 
 development across environments, which is how I prefer to work.
 
+BME680 References:
+- https://community.bosch-sensortec.com/t5/Knowledge-base/BME680-Sensor-Data-Interpretation/ta-p/8713
+- https://www.bosch-sensortec.com/products/environmental-sensors/gas-sensors-bme680/
+
+
 Environment Setup
 -----------------
 
+The library dependancies are listed are requirements in the platformio.ini.
 From a fresh check-out or after removing the .pio/ directory::
-
-  $ pio lib install "Ethernet"
-  $ pio lib install "DHT sensor library for ESPx"
 
 Development
 -----------

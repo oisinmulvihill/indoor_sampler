@@ -1,20 +1,18 @@
 /* Indoor Sampler
 
-This recovers the current temperature & humidity. It then works out the dew 
-point. These three variables are then POSTed to a REST API endpoint which will
-store the logged sample.
-
-DHTesp DHT11 library
-- https://github.com/beegee-tokyo/DHTesp
+This recovers the current temperature, humidity, pressure and gas values. These
+variables are then POSTed to a REST API endpoint which will store the logged 
+sample.
 
 Oisin Mulvihill
 2020-05-29
 
 */
 #include <SPI.h>
+#include <Wire.h>
 #include "Ethernet.h"
-#include "DHTesp.h"
 #include "logic.h"
+#include "Zanshin_BME680.h"
 
 // 5min = 1000 * 60 * 5
 // #define DELAY 300000
@@ -24,14 +22,13 @@ Oisin Mulvihill
 #define PORT 8080
 #define HOSTNAME "tarsis"
 
-DHTesp dht;
+BME680_Class BME680;
 EthernetClient client;
-
 int server_port = PORT;
 char server_host[] = HOSTNAME;
-
 // MAC Address for the Arduino Ethernet.
 byte mac[] = {0x90, 0xA2, 0xDA, 0x00, 0x61, 0x58};
+
 
 void setup() {
   // Open serial communications and wait for port to open:
@@ -40,16 +37,15 @@ void setup() {
     ; // wait for serial port to connect. Needed for native USB port only
   }
 
-  // Set up temp/humidity sensor
-  dht.setup(DHT_PIN, DHTesp::DHT11);
-
   // start the Ethernet connection:
   Serial.println("Initialize Ethernet with DHCP.");
   if (Ethernet.begin(mac) == 0) {
     Serial.println("Failed to configure Ethernet using DHCP");
     // Check for Ethernet hardware present
     if (Ethernet.hardwareStatus() == EthernetNoHardware) {
-      Serial.println("Ethernet shield was not found.  Sorry, can't run without hardware. :(");
+      Serial.println(
+        "Ethernet shield was not found.  Sorry, can't run without hardware. :("
+      );
       while (true) {
         delay(1); // do nothing, no point running without Ethernet hardware
       }
@@ -61,38 +57,58 @@ void setup() {
     Serial.println("DHCP assigned IP:");
     Serial.println(Ethernet.localIP());
   }
+
+  // Start BME680 using I2C, use first device found
+  while (!BME680.begin())
+  {
+    Serial.print("Unable to find BME680. Trying again in 5 seconds.\n");
+    delay(5000);
+  }
+
+  Serial.print("BME680: Configuring.\n");
+  BME680.setOversampling(TemperatureSensor, Oversample16);
+  BME680.setOversampling(HumiditySensor, Oversample16);
+  BME680.setOversampling(PressureSensor, Oversample16);
+  BME680.setIIRFilter(IIR4);
+  BME680.setGas(320,150); // 320°c for 150 milliseconds
 }
 
 void indoor_sample() {
-  char line[MAX_REQUEST_LINE_SIZE] = {0};
-  char report[MAX_REQUEST_LINE_SIZE] = {0};
-  char request[MAX_REQUEST_LINES][MAX_REQUEST_LINE_SIZE] = {0};
-  float temperature = dht.getTemperature();
-  float humidity = dht.getHumidity();
-  float dewPoint = dht.computeDewPoint(temperature, humidity);
+  char report[MAX_REPORT_SIZE] = {0};
+  char buffer[MAX_REPORT_SIZE] = {0};
+  int32_t temperature = 0;
+  int32_t humidity = 0;
+  int32_t pressure = 0;
+  int32_t gas = 0;
 
-  generateReport(
-    report,
-    sizeof(report),
-    temperature,
-    humidity,
-    dewPoint
-  );
+  BME680.getSensorData(temperature, humidity, pressure, gas);
 
-  generateHTTPPost(request, server_host, report);
+  if (temperature > 8000) {
+    Serial.print("Bad temperature reading: ");
+    Serial.print(temperature);
+    return;
+  }
 
+  generateReport(report, sizeof(report), temperature, humidity, pressure, gas);
   Serial.print("Sending report '");
   Serial.print(report);
-  memset(line, 0, sizeof(line));
-  snprintf(line, sizeof(line), "' to %s:%d.", server_host, server_port);
-  Serial.println(line);
+  memset(buffer, 0, sizeof(buffer));
+  snprintf(buffer, sizeof(buffer), "' to %s:%d.", server_host, server_port);
+  Serial.println(buffer);
   
   if (client.connect(server_host, server_port)) {
     // Success, connected OK, send HTTP POST request lines:
-    for(int index=0; index < MAX_REQUEST_LINES; index++) {
-      // Serial.println(request[index]);
-      client.println(request[index]);
-    }
+    client.println(HTTP_REQUEST_LINE);
+    // Request Headers
+    hostHeader(buffer, sizeof(buffer), server_host, server_port);
+    client.println(buffer);
+    client.println(HTTP_CONTENT_TYPE);
+    contentLengthHeader(buffer, sizeof(buffer), report);
+    client.println(buffer);
+    // End of headers
+    client.println();
+    // Request Body
+    client.println(report);
   } else {
     // This will be tried again later, so not a huge deal if we don't connect.
     Serial.println("Connection failed!");

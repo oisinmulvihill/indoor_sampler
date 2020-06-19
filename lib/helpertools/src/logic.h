@@ -1,23 +1,33 @@
 #ifndef _LOGIC_H  
 #define _LOGIC_H 
 
-// Max size 7 including null terminator: XXX.YY\0
-#define FIELD_MAX_LENGTH 7
 #define MAX_REQUEST_LINES 6
-#define MAX_REQUEST_LINE_SIZE 64
+// Max size of the generated report string.
+// char report[] = "type=bme680&t=12345&h=123456&p=123456789&g=123456";
+#define MAX_REPORT_SIZE 50
+#define HTTP_REQUEST_LINE "POST /log/sample/indoor HTTP/1.0"
+#define HTTP_CONTENT_TYPE "Content-Type: application/x-www-form-urlencoded"
+  
+void hostHeader(
+  char *request,
+  int request_size,
+  char *server_host, 
+  int server_port
+);
 
-void generateHTTPPost(
-  char request[MAX_REQUEST_LINES][MAX_REQUEST_LINE_SIZE],
-  const char *server_host, 
-  const char *report
+void contentLengthHeader(
+  char *request,
+  int request_size,
+  char *report
 );
 
 char * generateReport(
     char *report, 
     int report_size,
-    float temperature, 
-    float humidity, 
-    float dew_point
+    int32_t temperature, 
+    int32_t humidity, 
+    int32_t pressure,
+    int32_t gas
 );
 
 #endif
