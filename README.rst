@@ -64,9 +64,10 @@ Have at the serial output::
   Initialize Ethernet with DHCP.
   DHCP assigned IP:
   192.168.1.135
-  Sending report 't=27.20&h=40.00&d=12.44' to tarsis:8080.
-  Sending report 't=27.20&h=41.00&d=12.82' to tarsis:8080.
-  Sending report 't=27.30&h=40.00&d=12.53' to tarsis:8080.
-  Sending report 't=27.30&h=40.00&d=12.53' to tarsis:8080.
+  BME680: Configuring.
+  Sending report 'type=bme680&t=02473&h=040913&p=101461&g=01358087' to tarsis:8080.
+  Sending report 'type=bme680&t=02464&h=040909&p=101465&g=01194097' to tarsis:8080.
+  Sending report 'type=bme680&t=02448&h=040774&p=101469&g=01070569' to tarsis:8080.
+  Sending report 'type=bme680&t=02438&h=040681&p=101475&g=00979457' to tarsis:8080.
   :
   etc
