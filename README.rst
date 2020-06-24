@@ -23,6 +23,7 @@ lot of thought into how to structure a project. They can also support TDD
 development across environments, which is how I prefer to work.
 
 BME680 References:
+
 - https://community.bosch-sensortec.com/t5/Knowledge-base/BME680-Sensor-Data-Interpretation/ta-p/8713
 - https://www.bosch-sensortec.com/products/environmental-sensors/gas-sensors-bme680/
 
@@ -31,7 +32,7 @@ Environment Setup
 -----------------
 
 The library dependancies are listed are requirements in the platformio.ini.
-From a fresh check-out or after removing the .pio/ directory::
+To reset you can remove the .pio/ directory.
 
 Development
 -----------
@@ -44,7 +45,7 @@ On the host machine AKA the desktop (without arduino specific libs/headers)::
 
   $ pio test -e desktop
 
-To run tests on the arduino board::
+To run tests on the arduino board (Currently hanging for reasons I've not worked out)::
 
   $ pio test -e arduino
 
