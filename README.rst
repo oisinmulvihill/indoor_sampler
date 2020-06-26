@@ -78,6 +78,6 @@ Have at the serial output::
 API Endpoint
 ------------
 
-The indoor sampler will POST its results to the `Sample Server <https://github.com/oisinmulvihill/indoor_sampler>`_
+The indoor sampler will POST its results to the `Sample Server <https://github.com/oisinmulvihill/sample_server>`_
 which I run on my local LAN. The sampler will set its MAC Address as the custom 
 header "X-MAC".
