@@ -4,6 +4,8 @@ Indoor Sampler
 Sample the temperature, humidity, pressure and gas values logging readings to 
 central REST API service.
 
+This is part of the `House Weather Project <https://github.com/users/oisinmulvihill/projects/3>`_.
+
 .. contents::
 
 Introduction
@@ -71,3 +73,11 @@ Have at the serial output::
   Sending report 'type=bme680&t=02438&h=040681&p=101475&g=00979457' to tarsis:8080.
   :
   etc
+
+
+API Endpoint
+------------
+
+The indoor sampler will POST its results to the `Sample Server <https://github.com/oisinmulvihill/indoor_sampler>`_
+which I run on my local LAN. The sampler will set its MAC Address as the custom 
+header "X-MAC".
